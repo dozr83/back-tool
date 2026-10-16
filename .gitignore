@@ -1,0 +1,19 @@
+# 构建输出
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# 依赖库文件
+*.jar
+
+# 日志
+*.log
+
+# macOS Finder 元数据
+.DS_Store
+._*
+
+# 测试夹具（TestFileAndDirFilter 需要真实的 .idea 目录，豁免上面的 .idea/ 规则）
+!src/test/resources/test-data/filefilter/.idea/
