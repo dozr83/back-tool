@@ -70,4 +70,24 @@ public class TestDirCompareUtil {
         Assert.assertTrue(result.rightUniqFiles.contains(new File(rightDir, "right-only.txt")));
         Assert.assertTrue(result.rightUniqFiles.contains(new File(rightDir, "sub/right-only-sub.txt")));
     }
+
+    /**
+     * 同内容但不同路径：按路径对比，应判定为左独有+右独有，而非相同。
+     * 钉住"按路径"语义，防止被误改为按内容匹配。
+     */
+    @Test
+    public void testCompareTwoByPath_sameContentDifferentPath() {
+        File leftDir = new File(testTempDir, "two-dir/path-same-left");
+        File rightDir = new File(testTempDir, "two-dir/path-same-right");
+        TwoDirPathResult result = DirCompareUtil.compareTwoByPath(leftDir.getAbsolutePath(), rightDir.getAbsolutePath());
+
+        Assert.assertEquals(0, result.sameFiles.size());
+        Assert.assertEquals(0, result.modifiedFiles.size());
+
+        Assert.assertEquals(1, result.leftUniqFiles.size());
+        Assert.assertTrue(result.leftUniqFiles.contains(new File(leftDir, "a.txt")));
+
+        Assert.assertEquals(1, result.rightUniqFiles.size());
+        Assert.assertTrue(result.rightUniqFiles.contains(new File(rightDir, "b.txt")));
+    }
 }

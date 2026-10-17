@@ -104,14 +104,11 @@
                 </configuration>
             </plugin>
 
-            <!-- 测试插件：小工具无有效单测，默认跳过 test 执行，离线打包不再依赖 surefire 运行件 -->
+            <!-- 测试插件 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.6.0</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
             </plugin>
 
             <!-- 依赖拷贝插件：【核心改动】显式指定作用域，过滤test包 -->
