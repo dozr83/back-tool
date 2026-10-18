@@ -22,6 +22,7 @@ public class DirComparePane extends FxKit.FGridPane {
     public DirComparePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
+        outputPane.append("左边独有 0 个，右边独有 0 个，修改 0 个，相同 0 个");
         this.addRow(new Label("左边："), leftDirInput);
         this.addRow(new Label("右边："), rightDirInput);
         this.addMergeRow(FxKit.getHBox(
@@ -42,6 +43,17 @@ public class DirComparePane extends FxKit.FGridPane {
 
         StringBuilder resultBuilder = new StringBuilder();
         TwoDirPathResult compareResult = DirCompareUtil.compareTwoByPath(leftDirInput.getSelectDir(), rightDirInput.getSelectDir());
+
+        //汇总在前：右边独有为空 = 左边全包含右边
+        resultBuilder.append("左边独有 ").append(compareResult.leftUniqFiles.size())
+                .append(" 个，右边独有 ").append(compareResult.rightUniqFiles.size())
+                .append(" 个，修改 ").append(compareResult.modifiedFiles.size())
+                .append(" 个，相同 ").append(compareResult.sameFiles.size()).append(" 个");
+        if (compareResult.rightUniqFiles.isEmpty()) {
+            resultBuilder.append("，左边已全包含右边");
+        }
+        resultBuilder.append(StringConst.LF).append(StringConst.LF);
+
         resultBuilder.append("左边独有文件：").append(StringConst.LF);
         compareResult.leftUniqFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
 
@@ -55,13 +67,6 @@ public class DirComparePane extends FxKit.FGridPane {
             resultBuilder.append("相同文件：").append(StringConst.LF);
             compareResult.sameFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
         }
-
-        //右边独有为空 = 左边全包含右边
-        resultBuilder.append("右边独有 ").append(compareResult.rightUniqFiles.size()).append(" 个文件");
-        if (compareResult.rightUniqFiles.isEmpty()) {
-            resultBuilder.append("，左边已全包含右边");
-        }
-        resultBuilder.append(StringConst.LF);
 
         outputPane.append(resultBuilder.toString());
     }
