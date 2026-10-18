@@ -3,7 +3,6 @@ package backtool.service;
 import backtool.util.FileUtil;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -15,7 +14,7 @@ import java.util.function.Predicate;
  * describeRules() 从规则定义自动计算，不写死字符串。
  *
  * 用法：
- *   - DigestCalculator 走 DigestConfig，由 getDirFilter()/getFileFilter() 分别取目录/文件断言
+ *   - DigestCalculator 直接取 DEFAULT 的 dirPredicate()/filePredicate()
  *   - FileUtil.walkAllFile 等单一 Predicate 接口走 combinedPredicate()
  *   - UI 提示走 describeRules()
  */
@@ -69,44 +68,27 @@ public class FilterRules {
                 .toList();
     }
 
-    // ------------------- Builder -------------------
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private final List<Rule> rules = new ArrayList<>();
-
-        public Builder addRule(Type type, String description, Predicate<File> predicate) {
-            rules.add(new Rule(type, description, predicate));
-            return this;
-        }
-
-        public FilterRules build() {
-            return new FilterRules(rules);
-        }
-    }
-
     // ================ 内置规则实例 ================
 
+    private static FilterRules rules(Rule... rules) {
+        return new FilterRules(List.of(rules));
+    }
+
     /** 默认规则：项目目录/文件 + Mac 系统目录/文件 */
-    public static final FilterRules DEFAULT = builder()
-            .addRule(Type.DIR, ".Trashes / .fseventsd（Mac系统）",
+    public static final FilterRules DEFAULT = rules(
+            new Rule(Type.DIR, ".Trashes / .fseventsd（Mac系统）",
                     f -> {
                         String n = f.getName();
                         return n.equals(".Trashes") || n.equals(".fseventsd");
-                    })
-            .addRule(Type.DIR, ".idea / target / .git（项目构建）",
-                    new FileUtil.FileAndDirPredicate(Set.of(".idea", "target", ".git"), Set.of()))
-            .addRule(Type.FILE, ".DS_Store / ._ 前缀（Mac系统）",
+                    }),
+            new Rule(Type.DIR, ".idea / target / .git（项目构建）",
+                    new FileUtil.FileAndDirPredicate(Set.of(".idea", "target", ".git"), Set.of())),
+            new Rule(Type.FILE, ".DS_Store / ._ 前缀（Mac系统）",
                     f -> {
                         String n = f.getName();
                         return n.equals(".DS_Store") || n.startsWith("._");
-                    })
-            .addRule(Type.FILE, "iml 后缀（IDE配置）",
+                    }),
+            new Rule(Type.FILE, "iml 后缀（IDE配置）",
                     new FileUtil.FileAndDirPredicate(Set.of(), Set.of("iml")))
-            .build();
-
-    /** 空规则：不过滤任何文件 */
-    public static final FilterRules NONE = builder().build();
+    );
 }

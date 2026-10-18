@@ -4,7 +4,7 @@
 
 ## 2026-10-18 DigestCalculator 重载精简
 
-删除两个 `DigestConfig` 参数版重载（业务零调用的转发链），`getDirDigestFileMap(String, DigestType)` 改为直连 `DigestWalker` 真实现，不再经 Config 组装转发。测试改走默认规则重载（已核实 `FilterRules.DEFAULT` 对测试数据与原 `NONE` 行为一致，期望值不变）。`DigestConfig` 类与 `FilterRules.NONE` 因此无任何引用，去留待定。现状：门面仅 2 个计算方法 + `groupFilesByMd5` + `DigestType` 枚举，无重载。
+删除两个 `DigestConfig` 参数版重载（业务零调用的转发链），`getDirDigestFileMap(String, DigestType)` 改为直连 `DigestWalker` 真实现，不再经 Config 组装转发。测试改走默认规则重载（已核实 `FilterRules.DEFAULT` 对测试数据与原 `NONE` 行为一致，期望值不变）。删除孤儿类 `DigestConfig` 与无引用常量 `FilterRules.NONE`。`FilterRules` 内部 Builder 一并移除，DEFAULT 改由私有工厂 `rules(Rule...)` 构造。现状：门面仅 2 个计算方法 + `groupFilesByMd5` + `DigestType` 枚举，无重载；全项目无 Builder。
 
 ## 2026-10-18 CompareBuilder 更名 CompareQuery（正名）
 
