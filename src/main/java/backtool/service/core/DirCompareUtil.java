@@ -1,7 +1,6 @@
 package backtool.service.core;
 
-import backtool.service.CompareQuery;
-import backtool.service.DiffResult;
+import backtool.service.DirDigestComparer;
 import backtool.service.DigestCalculator;
 import backtool.util.FileUtil;
 import backtool.util.LinkedHashMapUtil;
@@ -84,17 +83,12 @@ public class DirCompareUtil {
             rightMd5Map_path.put(path, md5);
         });
 
-        // 使用 CompareQuery 进行比对
-        DiffResult diffResult = CompareQuery.of()
-                .left(leftMd5Map_path)
-                .right(rightMd5Map_path)
-                .byPath();
-
-        // 组装结果
-        diffResult.getSamePaths().forEach(path -> compareResult.sameFiles.add(leftFileMap_path.get(path)));
-        diffResult.getLeftOnlyPaths().forEach(path -> compareResult.leftUniqFiles.add(leftFileMap_path.get(path)));
-        diffResult.getRightOnlyPaths().forEach(path -> compareResult.rightUniqFiles.add(rightFileMap_path.get(path)));
-        diffResult.getModifiedPaths().forEach(path -> compareResult.modifiedFiles.add(
+        //按路径比对左右MD5，直接组装结果
+        DirDigestComparer.PathDiffResult diff = DirDigestComparer.compareByPath(leftMd5Map_path, rightMd5Map_path);
+        diff.samePaths.forEach(path -> compareResult.sameFiles.add(leftFileMap_path.get(path)));
+        diff.leftOnlyPaths.forEach(path -> compareResult.leftUniqFiles.add(leftFileMap_path.get(path)));
+        diff.rightOnlyPaths.forEach(path -> compareResult.rightUniqFiles.add(rightFileMap_path.get(path)));
+        diff.modifiedPaths.forEach(path -> compareResult.modifiedFiles.add(
                 new TwoDirPathResult.CrossDelta(leftFileMap_path.get(path), rightFileMap_path.get(path))));
 
         return compareResult;

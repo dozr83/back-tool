@@ -2,6 +2,10 @@
 
 倒序排列，最新在上。每条 = 日期 + 标题 + 影响说明（哪些文件/调用方受影响）。
 
+## 2026-10-18 删除比对中间层：CompareQuery / DiffResult / DiffCategory
+
+`DirCompareUtil.compareTwoByPath` 直连 `DirDigestComparer.compareByPath`，消费 `PathDiffResult` 四个集合；`DirVersionProcessor.checkDirChangeByMap` 内联按值比对，删除 `toRevertMap` 工具方法。净删 3 个类，测试 12/12 通过。
+
 ## 2026-10-18 面板类正名：Double → Duplicate
 
 `DirDoubleCheckPane` 更名 `DirDuplicatePane`（单目录重复文件），`DirDoubleKillPane` 更名 `DirCrossDuplicatePane`（两目录互查重复）。原名的 `double-check` 意为「复核」而非「重复」，属中式直译误用；`duplicate` 为查重领域标准词。仅类名与引用更新，无逻辑变化；涉及 `BackToolApplication` 菜单入口。

@@ -1,7 +1,5 @@
 package backtool.service;
 
-import backtool.service.CompareQuery;
-import backtool.service.DiffResult;
 import backtool.service.DigestCalculator;
 import backtool.util.LinkedHashMapUtil;
 import backtool.util.Md5Util;
@@ -62,11 +60,16 @@ public class DirVersionProcessor {
         Map<String, String> currentMd5Map = DigestCalculator.getDirDigestRelativePathMap(checkDirStr, DigestCalculator.DigestType.MD5);
         LinkedHashMap<String, List<String>> currentRevertMap = LinkedHashMapUtil.convert2ValueMap(currentMd5Map);
 
-        // 使用 CompareQuery 进行按值比对
-        DiffResult diffResult = CompareQuery.of()
-                .left(historyRevertMap)
-                .right(currentRevertMap)
-                .byValue();
+        //按值比对：历史版本md5在当前版本中仍存在为OK，不存在为已删除
+        List<String> okPaths = new ArrayList<>();
+        List<String> missingPaths = new ArrayList<>();
+        historyRevertMap.forEach((md5, paths) -> {
+            if (currentRevertMap.containsKey(md5)) {
+                okPaths.addAll(paths);
+            } else {
+                missingPaths.addAll(paths);
+            }
+        });
 
         // 转换为旧的结果类型以保持兼容
         List<FileDigestModel> okFiles = new ArrayList<>();
@@ -81,11 +84,11 @@ public class DirVersionProcessor {
             historyModelMap.put(name, new FileDigestModel(name, md5, length));
         });
 
-        diffResult.getOkPaths().forEach(path -> {
+        okPaths.forEach(path -> {
             FileDigestModel model = historyModelMap.get(path);
             if (model != null) okFiles.add(model);
         });
-        diffResult.getMissingPaths().forEach(path -> {
+        missingPaths.forEach(path -> {
             FileDigestModel model = historyModelMap.get(path);
             if (model != null) deleteFiles.add(model);
         });

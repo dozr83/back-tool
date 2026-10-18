@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
- * 按路径比对两个摘要 Map（比对算法本体，门面为 CompareQuery）
+ * 按路径比对两个摘要 Map（比对算法本体，调用方直接使用）
  */
 public final class DirDigestComparer {
     private DirDigestComparer() {
