@@ -38,6 +38,10 @@ class DigestWalker {
 
                 @Override
                 public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) {
+                    // 符号链接：walkFileTree 未跟随链接时按文件回调，跳过以免把目录链接当文件读
+                    if (attrs.isSymbolicLink()) {
+                        return FileVisitResult.CONTINUE;
+                    }
                     // 文件过滤：命中则跳过该文件（如 .DS_Store / ._ 前缀 / iml 后缀）
                     if (fileFilter != null && fileFilter.test(path.toFile())) {
                         return FileVisitResult.CONTINUE;
