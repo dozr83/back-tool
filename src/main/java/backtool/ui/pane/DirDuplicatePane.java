@@ -17,14 +17,14 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class DirDoubleCheckPane extends VBox {
+public class DirDuplicatePane extends VBox {
     private final FxKit.LogTextArea outputPane;
     private FxKit.DirInputFx compareDirSelectPan = new FxKit.DirInputFx(FxKit.inputLength);
     private FxKit.FGridPane imgGridPane = new FxKit.FGridPane();
     private VBox vBoxOutputPane = FxKit.getVBox();
     private TextField countFiled = FxKit.getNumberInputTextField(100);
 
-    public DirDoubleCheckPane() {
+    public DirDuplicatePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
         imgGridPane.addRow(new Label("选择文件夹"), compareDirSelectPan);

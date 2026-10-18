@@ -14,14 +14,14 @@ import backtool.util.StringUtil;
 import java.io.File;
 
 
-public class DirDoubleKillPane extends VBox {
+public class DirCrossDuplicatePane extends VBox {
     private final FxKit.LogTextArea outputPane;
     private FxKit.DirInputFx standardDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private FxKit.DirInputFx doubleKillDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private FxKit.FGridPane imgGridPane = new FxKit.FGridPane();
     private VBox vBoxOutputPane = FxKit.getVBox();
 
-    public DirDoubleKillPane() {
+    public DirCrossDuplicatePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
         imgGridPane.addRow(new Label("选择标准参考文件夹："), standardDirInput);

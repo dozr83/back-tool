@@ -4,8 +4,8 @@ import backtool.AppConfig;
 import backtool.ui.pane.AutoTranslatorPane;
 import backtool.ui.pane.DeleteEmptyDirPane;
 import backtool.ui.pane.DirComparePane;
-import backtool.ui.pane.DirDoubleCheckPane;
-import backtool.ui.pane.DirDoubleKillPane;
+import backtool.ui.pane.DirDuplicatePane;
+import backtool.ui.pane.DirCrossDuplicatePane;
 import backtool.ui.pane.DirVersionCheckPane;
 import backtool.ui.pane.DirVersionGenPane;
 import backtool.ui.pane.EnglishListeningPane;
@@ -85,9 +85,9 @@ public class BackToolApplication extends Application {
             m1.getItems().add(new MyMenuItem("清空空文件夹",
                     e -> setCenterWithScrollPane(new DeleteEmptyDirPane()), true));
             m1.getItems().add(new MyMenuItem("删除文件夹中的重复文件",
-                    e -> setCenterWithScrollPane(new DirDoubleCheckPane()), true));
+                    e -> setCenterWithScrollPane(new DirDuplicatePane()), true));
             m1.getItems().add(new MyMenuItem("删除两个文件夹的重复文件",
-                    e -> setCenterWithScrollPane(new DirDoubleKillPane()), true));
+                    e -> setCenterWithScrollPane(new DirCrossDuplicatePane()), true));
             this.getMenus().add(m1);
 
 

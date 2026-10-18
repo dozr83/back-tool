@@ -2,6 +2,10 @@
 
 倒序排列，最新在上。每条 = 日期 + 标题 + 影响说明（哪些文件/调用方受影响）。
 
+## 2026-10-18 面板类正名：Double → Duplicate
+
+`DirDoubleCheckPane` 更名 `DirDuplicatePane`（单目录重复文件），`DirDoubleKillPane` 更名 `DirCrossDuplicatePane`（两目录互查重复）。原名的 `double-check` 意为「复核」而非「重复」，属中式直译误用；`duplicate` 为查重领域标准词。仅类名与引用更新，无逻辑变化；涉及 `BackToolApplication` 菜单入口。
+
 ## 2026-10-18 DigestCalculator 重载精简
 
 删除两个 `DigestConfig` 参数版重载（业务零调用的转发链），`getDirDigestFileMap(String, DigestType)` 改为直连 `DigestWalker` 真实现，不再经 Config 组装转发。测试改走默认规则重载（已核实 `FilterRules.DEFAULT` 对测试数据与原 `NONE` 行为一致，期望值不变）。删除孤儿类 `DigestConfig` 与无引用常量 `FilterRules.NONE`。`FilterRules` 内部 Builder 一并移除，DEFAULT 改由私有工厂 `rules(Rule...)` 构造。现状：门面仅 2 个计算方法 + `groupFilesByMd5` + `DigestType` 枚举，无重载；全项目无 Builder。
