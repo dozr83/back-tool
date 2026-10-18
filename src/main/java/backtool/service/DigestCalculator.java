@@ -44,15 +44,15 @@ public class DigestCalculator {
         return md5RevertMap_md5;
     }
 
-    public static LinkedHashMap<String, String> getDirDigestRelativePathMap(DigestConfig config) {
-        LinkedHashMap<File, String> digestFileMap = getDirDigestFileMap(config);
+    public static LinkedHashMap<String, String> getDirDigestRelativePathMap(String baseDirStr, DigestType digestType) {
+        LinkedHashMap<File, String> digestFileMap = getDirDigestFileMap(baseDirStr, digestType);
         return LinkedHashMapUtil.alterKey(digestFileMap,
-                file -> FileUtil.getSubPathUnix(file.getAbsolutePath(), config.getBaseDir().getAbsolutePath()));
+                file -> FileUtil.getSubPathUnix(file.getAbsolutePath(), new File(baseDirStr).getAbsolutePath()));
     }
 
-    public static LinkedHashMap<File, String> getDirDigestFileMap(DigestConfig config) {
-        return DigestWalker.walkAndCalculate(config.getBaseDir(),
-                config.getDirFilter(), config.getFileFilter(),
-                config.getDigestType()::calculate);
+    public static LinkedHashMap<File, String> getDirDigestFileMap(String baseDirStr, DigestType digestType) {
+        return DigestWalker.walkAndCalculate(new File(baseDirStr),
+                FilterRules.DEFAULT.dirPredicate(), FilterRules.DEFAULT.filePredicate(),
+                digestType::calculate);
     }
 }

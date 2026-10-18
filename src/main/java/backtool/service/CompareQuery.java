@@ -5,22 +5,22 @@ import backtool.service.DiffCategory;
 import java.util.*;
 
 /**
- * 流式比对构造器
+ * 流式比对查询：of() 进，left/right 配置，byPath()/byValue() 终结执行返回 DiffResult
  */
-public class CompareBuilder {
+public class CompareQuery {
     private Map<String, ?> leftMap;
     private Map<String, ?> rightMap;
 
-    public static CompareBuilder of() {
-        return new CompareBuilder();
+    public static CompareQuery of() {
+        return new CompareQuery();
     }
 
-    public CompareBuilder left(Map<String, ?> leftMap) {
+    public CompareQuery left(Map<String, ?> leftMap) {
         this.leftMap = leftMap;
         return this;
     }
 
-    public CompareBuilder right(Map<String, ?> rightMap) {
+    public CompareQuery right(Map<String, ?> rightMap) {
         this.rightMap = rightMap;
         return this;
     }

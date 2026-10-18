@@ -1,6 +1,6 @@
 package backtool.service;
 
-import backtool.service.CompareBuilder;
+import backtool.service.CompareQuery;
 import backtool.service.DiffResult;
 import backtool.service.DigestCalculator;
 import backtool.util.LinkedHashMapUtil;
@@ -59,16 +59,11 @@ public class DirVersionProcessor {
         });
 
         // 2. 当前版本
-        Map<String, String> currentMd5Map = DigestCalculator.getDirDigestRelativePathMap(
-                DigestConfig.builder()
-                        .baseDir(checkDirStr)
-                        .digestType(DigestCalculator.DigestType.MD5)
-                        .build()
-        );
+        Map<String, String> currentMd5Map = DigestCalculator.getDirDigestRelativePathMap(checkDirStr, DigestCalculator.DigestType.MD5);
         LinkedHashMap<String, List<String>> currentRevertMap = LinkedHashMapUtil.convert2ValueMap(currentMd5Map);
 
-        // 使用 CompareBuilder 进行按值比对
-        DiffResult diffResult = CompareBuilder.of()
+        // 使用 CompareQuery 进行按值比对
+        DiffResult diffResult = CompareQuery.of()
                 .left(historyRevertMap)
                 .right(currentRevertMap)
                 .byValue();
