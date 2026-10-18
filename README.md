@@ -32,6 +32,8 @@ java -cp "target/classes:target/lib/*" backtool.ui.main.BackToolMain
 - `python.script.dir`：外部 Python 脚本根目录
 - `baidu.trans.appid` / `baidu.trans.secret`：百度翻译开放平台密钥，留空则翻译功能不可用
 
+历史变更见 [CHANGELOG.md](CHANGELOG.md)。
+
 ## 许可
 
 [Apache License 2.0](LICENSE)

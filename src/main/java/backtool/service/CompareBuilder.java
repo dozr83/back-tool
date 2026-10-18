@@ -29,7 +29,7 @@ public class CompareBuilder {
      * 按路径比对
      */
     public DiffResult byPath() {
-        DigestCalculator.PathDiffResult diff = DigestCalculator.compareByPath(leftMap, rightMap);
+        DirDigestComparer.PathDiffResult diff = DirDigestComparer.compareByPath(leftMap, rightMap);
 
         Map<DiffCategory, List<String>> changes = new EnumMap<>(DiffCategory.class);
         changes.put(DiffCategory.SAME, new ArrayList<>(diff.samePaths));

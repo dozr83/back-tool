@@ -2,6 +2,7 @@ package backtool.ui.pane;
 
 import backtool.ui.component.FxKit;
 import backtool.service.DigestCalculator;
+import backtool.service.DigestManifest;
 import backtool.service.DirVersionProcessor;
 import backtool.util.DateUtil;
 import backtool.util.StringConst;
@@ -47,7 +48,7 @@ public class DirVersionCheckPane extends FxKit.FGridPane {
         new Thread(() -> {
             try {
                 // 使用公共方法解析字符串清单
-                LinkedHashMap<String, String> historyMap = DigestCalculator.parseVersionStr(inputStr);
+                LinkedHashMap<String, String> historyMap = DigestManifest.parseVersionStr(inputStr);
                 DirVersionProcessor.VersionCheckResult compareResult = DirVersionProcessor.checkDirChangeByMap(checkDir, historyMap);
 
                 var resultBuilder = new StringBuilder();
