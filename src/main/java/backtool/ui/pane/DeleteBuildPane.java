@@ -39,6 +39,7 @@ public class DeleteBuildPane extends VBox {
     private static final String K_FILE_NAMES = "DeleteBuildPane.fileNames";
     private static final String DEFAULT_BUILD_DIRS = "target,build,.build,dist,node_modules,__pycache__";
     private static final String DEFAULT_EXTRA_DIRS = ".git,.idea,.vcs,.vscode";
+    private static final String DEFAULT_FILE_NAMES = ".iml";
 
     private FxKit.DirInputFx rootDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private final CheckBox buildDirsCheckBox = new CheckBox();
@@ -71,7 +72,7 @@ public class DeleteBuildPane extends VBox {
         fileNamesCheckBox.setSelected(true);
         buildDirsField.setText(PaneStateStore.get(K_BUILD_DIRS, DEFAULT_BUILD_DIRS));
         extraDirsField.setText(PaneStateStore.get(K_EXTRA_DIRS, DEFAULT_EXTRA_DIRS));
-        fileNamesField.setText(PaneStateStore.get(K_FILE_NAMES, ""));
+        fileNamesField.setText(PaneStateStore.get(K_FILE_NAMES, DEFAULT_FILE_NAMES));
         rootDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_ROOT, b));
 
         scanButton = new FxKit.FButton("扫描构建产物", event -> scan());
@@ -84,8 +85,7 @@ public class DeleteBuildPane extends VBox {
         grid.addRow(FxKit.getHBox(buildDirsCheckBox, new Label("构建目录")), buildDirsField);
         grid.addRow(FxKit.getHBox(extraDirsCheckBox, new Label("附加目录")), extraDirsField);
         grid.addRow(FxKit.getHBox(fileNamesCheckBox, new Label("文件名（结尾匹配，如 .iml）")), fileNamesField);
-        grid.addMergeRow(FxKit.getHBox(scanButton, deleteButton), 2);
-        grid.addMergeRow(FxKit.getHBox(selectAllButton, selectNoneButton, invertButton), 2);
+        grid.addMergeRow(FxKit.getHBox(scanButton, deleteButton, selectAllButton, selectNoneButton, invertButton), 2);
         grid.addMergeRow(FxKit.getHBox(summaryLabel, statusLabel), 2);
         grid.setAlignment(Pos.TOP_LEFT);
 

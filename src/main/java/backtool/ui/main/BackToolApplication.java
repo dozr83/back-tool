@@ -24,7 +24,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -149,36 +148,16 @@ public class BackToolApplication extends Application {
 
     public VBox buildToolBar(PbMenuBar pbMenuBar) {
         VBox leftBar = new VBox();
-        leftBar.setSpacing(20);
+        leftBar.setSpacing(10);
         leftBar.setPadding(new Insets(20, 5, 5, 5));
-        final AtomicInteger maxLength = new AtomicInteger(-1);
         pbMenuBar.getMenus().forEach(menu -> {
             menu.getItems().forEach(menuItem -> {
                 if (menuItem instanceof PbMenuBar.MyMenuItem) {
                     PbMenuBar.MyMenuItem myMenuItem = (PbMenuBar.MyMenuItem) menuItem;
                     if (myMenuItem.addToolBar) {
-                        if (menuItem.getText().length() > maxLength.get()) {
-                            maxLength.set(menuItem.getText().length());
-                        }
-                    }
-
-                }
-            });
-        });
-        pbMenuBar.getMenus().forEach(menu -> {
-            menu.getItems().forEach(menuItem -> {
-                if (menuItem instanceof PbMenuBar.MyMenuItem) {
-                    PbMenuBar.MyMenuItem myMenuItem = (PbMenuBar.MyMenuItem) menuItem;
-                    if (myMenuItem.addToolBar) {
-                        String text = myMenuItem.getText();
-                        if (text.length() < maxLength.get()) {
-                            int all = maxLength.get() - text.length();
-                            int left = all / 2;
-                            int right = all - left;
-                            text = "　".repeat(left) + text + "　".repeat(right);
-                        }
-                        FxKit.FButton button = new FxKit.FButton(text, e -> myMenuItem.consumer.accept(e));
-                        button.setMinWidth(200);
+                        FxKit.FButton button = new FxKit.FButton(myMenuItem.getText(), e -> myMenuItem.consumer.accept(e));
+                        button.setMaxWidth(Double.MAX_VALUE);
+                        button.setMinHeight(36);
                         leftBar.getChildren().add(button);
                     }
                 }
