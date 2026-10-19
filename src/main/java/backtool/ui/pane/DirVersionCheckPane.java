@@ -1,5 +1,6 @@
 package backtool.ui.pane;
 
+import backtool.service.PaneStateStore;
 import backtool.ui.component.FxKit;
 import backtool.service.DigestCalculator;
 import backtool.service.DigestManifest;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 
 public class DirVersionCheckPane extends FxKit.FGridPane {
     private static final Logger logger = Logger.getLogger(DirVersionCheckPane.class.getName());
+    private static final String K_CHECK_DIR = "DirVersionCheckPane.checkDir";
     private FxKit.DirInputFx checkDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private TextArea textArea = new TextArea();
     private final FxKit.LogTextArea outputArea = new FxKit.LogTextArea("执行结果");
@@ -26,6 +28,8 @@ public class DirVersionCheckPane extends FxKit.FGridPane {
     public DirVersionCheckPane() {
         outputArea.append("执行结果");
         textArea.setMaxHeight(100);
+        checkDirInput.setSelectDir(PaneStateStore.get(K_CHECK_DIR, ""));
+        checkDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_CHECK_DIR, b));
         this.addRow(new Label("选择要检查的文件夹:"), checkDirInput);
         this.addRow(new Label("手工输入资产清单:"), textArea);
         this.addMergeRow(new FxKit.FButton("检查资产清单", event -> check()), 2);

@@ -1,5 +1,6 @@
 package backtool.ui.pane;
 
+import backtool.service.PaneStateStore;
 import backtool.service.FilteredFileWalker;
 import backtool.ui.component.FxKit;
 import backtool.util.Md5Util;
@@ -11,12 +12,18 @@ import java.util.List;
 
 public class DirVersionGenPane extends FxKit.FGridPane {
 
+    private static final String K_FILE = "DirVersionGenPane.file";
+    private static final String K_DIR = "DirVersionGenPane.dir";
     private FxKit.FileInputFx fileInputFx = new FxKit.FileInputFx(FxKit.inputLength);
     private FxKit.DirInputFx dirInputFx = new FxKit.DirInputFx(FxKit.inputLength);
     private final FxKit.LogTextArea outputArea = new FxKit.LogTextArea("执行结果");
 
     public DirVersionGenPane() {
         outputArea.append("执行结果");
+        fileInputFx.setSelectFile(PaneStateStore.get(K_FILE, ""));
+        dirInputFx.setSelectDir(PaneStateStore.get(K_DIR, ""));
+        fileInputFx.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_FILE, b));
+        dirInputFx.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_DIR, b));
         this.addRow(fileInputFx);
         this.addRow(dirInputFx);
         this.addMergeRow(new FxKit.FButton("计算MD5资产清单", event -> calMd5()), 2);

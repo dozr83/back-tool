@@ -1,5 +1,6 @@
 package backtool.ui.pane;
 
+import backtool.service.PaneStateStore;
 import backtool.service.core.TwoDirSameResult;
 import backtool.service.core.DirCompareUtil;
 import backtool.ui.component.FxKit;
@@ -15,6 +16,8 @@ import java.io.File;
 
 
 public class DirCrossDuplicatePane extends VBox {
+    private static final String K_STANDARD = "DirCrossDuplicatePane.standardDir";
+    private static final String K_KILL = "DirCrossDuplicatePane.killDir";
     private final FxKit.LogTextArea outputPane;
     private FxKit.DirInputFx standardDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private FxKit.DirInputFx doubleKillDirInput = new FxKit.DirInputFx(FxKit.inputLength);
@@ -24,6 +27,10 @@ public class DirCrossDuplicatePane extends VBox {
     public DirCrossDuplicatePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
+        standardDirInput.setSelectDir(PaneStateStore.get(K_STANDARD, ""));
+        doubleKillDirInput.setSelectDir(PaneStateStore.get(K_KILL, ""));
+        standardDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_STANDARD, b));
+        doubleKillDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_KILL, b));
         imgGridPane.addRow(new Label("选择标准参考文件夹："), standardDirInput);
         imgGridPane.addRow(new Label("选择删除重复文件文件夹："), doubleKillDirInput);
         imgGridPane.addRow(new FxKit.FButton("查看重复文件", event -> dirCompare()), new FxKit.FButton("删除重复文件", event -> doubleKill()));

@@ -199,7 +199,7 @@ public class FxKit {
      * Created by dozr83 on 2020/3/7.
      */
     public static class FileInputFx extends HBox {
-        private TextField textField = new TextField();
+        public TextField textField = new TextField();
 
         public FileInputFx() {
             this(null);

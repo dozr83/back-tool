@@ -2,6 +2,7 @@ package backtool.ui.main;
 
 import backtool.AppConfig;
 import backtool.ui.pane.AutoTranslatorPane;
+import backtool.ui.pane.DeleteBuildPane;
 import backtool.ui.pane.DeleteEmptyDirPane;
 import backtool.ui.pane.DirComparePane;
 import backtool.ui.pane.DirDuplicatePane;
@@ -84,6 +85,8 @@ public class BackToolApplication extends Application {
             Menu m1 = new Menu("删除重复文件");
             m1.getItems().add(new MyMenuItem("清空空文件夹",
                     e -> setCenterWithScrollPane(new DeleteEmptyDirPane()), true));
+            m1.getItems().add(new MyMenuItem("删除构建产物",
+                    e -> setCenterWithScrollPane(new DeleteBuildPane()), true));
             m1.getItems().add(new MyMenuItem("删除文件夹中的重复文件",
                     e -> setCenterWithScrollPane(new DirDuplicatePane()), true));
             m1.getItems().add(new MyMenuItem("删除两个文件夹的重复文件",

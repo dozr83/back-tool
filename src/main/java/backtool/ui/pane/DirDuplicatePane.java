@@ -1,5 +1,6 @@
 package backtool.ui.pane;
 
+import backtool.service.PaneStateStore;
 import backtool.service.core.OneDirResult;
 import backtool.service.core.DirCompareUtil;
 import backtool.AppConfig;
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class DirDuplicatePane extends VBox {
+    private static final String K_ROOT = "DirDuplicatePane.rootDir";
     private final FxKit.LogTextArea outputPane;
     private FxKit.DirInputFx compareDirSelectPan = new FxKit.DirInputFx(FxKit.inputLength);
     private FxKit.FGridPane imgGridPane = new FxKit.FGridPane();
@@ -27,6 +29,8 @@ public class DirDuplicatePane extends VBox {
     public DirDuplicatePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
+        compareDirSelectPan.setSelectDir(PaneStateStore.get(K_ROOT, ""));
+        compareDirSelectPan.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_ROOT, b));
         imgGridPane.addRow(new Label("选择文件夹"), compareDirSelectPan);
         imgGridPane.addRow(new Label("显示操作文件数量"), countFiled);
         var buttons = FxKit.getHBox(
