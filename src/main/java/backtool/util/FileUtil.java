@@ -449,11 +449,7 @@ public class FileUtil {
         }
         boolean deleted = file.delete();
         if (!deleted && OsUtil.isMac()) {
-            try {
-                new ProcessBuilder("chflags", "nouchg", file.getAbsolutePath()).start().waitFor();
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "清除锁定标志失败: " + file.getAbsolutePath(), e);
-            }
+            clearUchgUpward(file);
             deleted = file.delete();
         }
         return deleted;
@@ -468,14 +464,24 @@ public class FileUtil {
         }
         boolean deleted = dir.delete();
         if (!deleted && OsUtil.isMac()) {
-            try {
-                new ProcessBuilder("chflags", "nouchg", dir.getAbsolutePath()).start().waitFor();
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "清除锁定标志失败: " + dir.getAbsolutePath(), e);
-            }
+            clearUchgUpward(dir);
             deleted = dir.delete();
         }
         return deleted;
+    }
+
+    /**
+     * 清除路径本身 + 所有父目录的 uchg 锁定标志，直到根。
+     * 解决父目录被锁导致子文件/子目录删不掉的情况。
+     */
+    private static void clearUchgUpward(File path) {
+        try {
+            for (File cur = path; cur != null && cur.exists(); cur = cur.getParentFile()) {
+                new ProcessBuilder("chflags", "nouchg", cur.getAbsolutePath()).start().waitFor();
+            }
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "清除锁定标志失败: " + path.getAbsolutePath(), e);
+        }
     }
 
     /**
