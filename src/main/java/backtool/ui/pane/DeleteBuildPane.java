@@ -184,6 +184,7 @@ public class DeleteBuildPane extends VBox {
                     }
                 });
                 Platform.runLater(() -> {
+                    detailPane.getChildren().clear();
                     replaceCandidates(found);
                     setBusy(false);
                     statusLabel.setText("扫描完成，共 " + found.size() + " 个（目录+指定文件），默认全选，取消勾选不删除");
