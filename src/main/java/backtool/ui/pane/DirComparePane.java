@@ -5,6 +5,7 @@ import backtool.service.core.TwoDirPathResult;
 import backtool.service.core.DirCompareUtil;
 import backtool.ui.component.FxKit;
 import backtool.util.FileUtil;
+import backtool.util.OsUtil;
 import backtool.util.StringConst;
 import backtool.util.StringUtil;
 import javafx.scene.control.Alert;
@@ -14,11 +15,14 @@ import javafx.scene.control.Label;
 
 import java.io.File;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by dozr83 on 2020/3/7.
  */
 public class DirComparePane extends FxKit.FGridPane {
+    private static final Logger logger = Logger.getLogger(DirComparePane.class.getName());
     private final FxKit.LogTextArea outputPane;
     //选择对比文件夹
     private FxKit.DirInputFx leftDirInput = new FxKit.DirInputFx(FxKit.inputLength);
@@ -132,7 +136,17 @@ public class DirComparePane extends FxKit.FGridPane {
         int fail = 0;
         StringBuilder failBuilder = new StringBuilder();
         for (File file : sameRightFiles) {
-            if (file.delete()) {
+            boolean deleted = file.delete();
+            //mac 锁定(uchg)的文件会被直接拒删，仅 Mac 下先清不可变标志再重试一次
+            if (!deleted && OsUtil.isMac()) {
+                try {
+                    new ProcessBuilder("chflags", "nouchg", file.getAbsolutePath()).start().waitFor();
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "清除锁定标志失败: " + file.getAbsolutePath(), e);
+                }
+                deleted = file.delete();
+            }
+            if (deleted) {
                 success++;
             } else {
                 fail++;
