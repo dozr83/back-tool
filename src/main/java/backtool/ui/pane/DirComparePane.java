@@ -4,10 +4,16 @@ import backtool.service.FilterRules;
 import backtool.service.core.TwoDirPathResult;
 import backtool.service.core.DirCompareUtil;
 import backtool.ui.component.FxKit;
+import backtool.util.FileUtil;
 import backtool.util.StringConst;
 import backtool.util.StringUtil;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * Created by dozr83 on 2020/3/7.
@@ -17,18 +23,31 @@ public class DirComparePane extends FxKit.FGridPane {
     //选择对比文件夹
     private FxKit.DirInputFx leftDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private FxKit.DirInputFx rightDirInput = new FxKit.DirInputFx(FxKit.inputLength);
-    private final CheckBox showSameCheckBox = new CheckBox("同时列出相同文件");
+    private final CheckBox leftUniqCheckBox = new CheckBox("左边独有");
+    private final CheckBox rightUniqCheckBox = new CheckBox("右边独有");
+    private final CheckBox modifiedCheckBox = new CheckBox("修改");
+    private final CheckBox sameCheckBox = new CheckBox("相同");
 
     public DirComparePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
         outputPane.append("左边独有 0 个，右边独有 0 个，修改 0 个，相同 0 个");
+        leftUniqCheckBox.setSelected(true);
+        rightUniqCheckBox.setSelected(true);
+        modifiedCheckBox.setSelected(true);
         this.addRow(new Label("左边："), leftDirInput);
         this.addRow(new Label("右边："), rightDirInput);
         this.addMergeRow(FxKit.getHBox(
                 new FxKit.FButton("对比文件夹", event -> dirCompare()),
-                showSameCheckBox,
+                new FxKit.FButton("删除右侧文件夹相同文件", event -> deleteRightSameFiles()),
                 new Label("过滤规则：" + String.join("，", FilterRules.DEFAULT.describeRules()))
+        ), 2);
+        this.addMergeRow(FxKit.getHBox(
+                new Label("输出内容："),
+                leftUniqCheckBox,
+                rightUniqCheckBox,
+                modifiedCheckBox,
+                sameCheckBox
         ), 2);
         this.addMergeRow(outputPane, 2);
     }
@@ -54,21 +73,77 @@ public class DirComparePane extends FxKit.FGridPane {
         }
         resultBuilder.append(StringConst.LF).append(StringConst.LF);
 
-        resultBuilder.append("左边独有文件：").append(StringConst.LF);
-        compareResult.leftUniqFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
+        if (leftUniqCheckBox.isSelected()) {
+            resultBuilder.append("左边独有文件：").append(StringConst.LF);
+            compareResult.leftUniqFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
+        }
 
-        resultBuilder.append("右边独有文件：").append(StringConst.LF);
-        compareResult.rightUniqFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
+        if (rightUniqCheckBox.isSelected()) {
+            resultBuilder.append("右边独有文件：").append(StringConst.LF);
+            compareResult.rightUniqFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
+        }
 
-        resultBuilder.append("修改文件：").append(StringConst.LF);
-        compareResult.modifiedFiles.forEach(delta -> resultBuilder.append(delta.left().getAbsolutePath()).append(" → ").append(delta.right().getAbsolutePath()).append(StringConst.LF));
+        if (modifiedCheckBox.isSelected()) {
+            resultBuilder.append("修改文件：").append(StringConst.LF);
+            compareResult.modifiedFiles.forEach(delta -> resultBuilder.append(delta.left().getAbsolutePath()).append(" → ").append(delta.right().getAbsolutePath()).append(StringConst.LF));
+        }
 
-        if (showSameCheckBox.isSelected()) {
+        if (sameCheckBox.isSelected()) {
             resultBuilder.append("相同文件：").append(StringConst.LF);
             compareResult.sameFiles.forEach(file -> resultBuilder.append(file.getAbsolutePath()).append(StringConst.LF));
         }
 
         outputPane.append(resultBuilder.toString());
+    }
+
+    private void deleteRightSameFiles() {
+        outputPane.clear();
+        if (checkParamBlank()) {
+            outputPane.append("请选择");
+            return;
+        }
+        String leftDir = leftDirInput.getSelectDir();
+        String rightDir = rightDirInput.getSelectDir();
+        if (leftDir.equals(rightDir)) {
+            outputPane.append("左右为同一文件夹，无法删除");
+            return;
+        }
+        TwoDirPathResult compareResult = DirCompareUtil.compareTwoByPath(leftDir, rightDir);
+
+        //相同文件记录的是左侧文件，按相对路径换算为右侧文件
+        List<File> sameRightFiles = compareResult.sameFiles.stream()
+                .map(leftFile -> new File(rightDir, FileUtil.getSubPathUnix(leftFile.getAbsolutePath(), leftDir)))
+                .toList();
+        outputPane.append("执行结果");
+        if (sameRightFiles.isEmpty()) {
+            outputPane.append("右侧没有与左侧相同的文件");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("确认删除");
+        confirm.setHeaderText("将删除右侧文件夹中与左侧相同的 " + sameRightFiles.size() + " 个文件");
+        confirm.setContentText("强烈建议右侧文件夹先整体备份，用于查看删除后剩余的文件。确认删除？");
+        if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
+            return;
+        }
+
+        int success = 0;
+        int fail = 0;
+        StringBuilder failBuilder = new StringBuilder();
+        for (File file : sameRightFiles) {
+            if (file.delete()) {
+                success++;
+            } else {
+                fail++;
+                failBuilder.append(file.getAbsolutePath()).append(StringConst.LF);
+            }
+        }
+        outputPane.append("删除右侧相同文件：成功 " + success + " 个，失败 " + fail + " 个");
+        if (fail > 0) {
+            outputPane.append("失败文件：");
+            outputPane.append(failBuilder.toString());
+        }
     }
 
     private boolean checkParamBlank() {

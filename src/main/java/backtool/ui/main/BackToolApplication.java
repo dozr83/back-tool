@@ -74,7 +74,7 @@ public class BackToolApplication extends Application {
                     e -> setCenterWithScrollPane(new DirVersionGenPane()), true));
             m2.getItems().add(new MyMenuItem("检查资产清单",
                     e -> setCenterWithScrollPane(new DirVersionCheckPane()), true));
-            m2.getItems().add(new MyMenuItem("对比两个文件夹差异",
+            m2.getItems().add(new MyMenuItem("按路径对比两个文件夹",
                     e -> setCenterWithScrollPane(new DirComparePane()), true));
 
             this.getMenus().add(m2);
