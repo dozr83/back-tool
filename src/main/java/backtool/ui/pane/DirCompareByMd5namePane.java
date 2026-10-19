@@ -33,6 +33,7 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
     private final CheckBox leftUniqCheckBox = new CheckBox("左边独有（右边缺失，疑似误删）");
     private final CheckBox rightUniqCheckBox = new CheckBox("右边独有（左边没有）");
     private final CheckBox sameCheckBox = new CheckBox("相同（文件名+MD5一致）");
+    private final CheckBox onlyExtMd5CheckBox = new CheckBox("仅按文件后缀+MD5对比（忽略文件名）");
 
     public DirCompareByMd5namePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
@@ -43,13 +44,15 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
         leftUniqCheckBox.setSelected(true);
         rightUniqCheckBox.setSelected(true);
         sameCheckBox.setSelected(false);
+        onlyExtMd5CheckBox.setSelected(false);
         standardDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_STANDARD, b));
         doubleKillDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_KILL, b));
         this.addRow(new Label("左边（参考）："), standardDirInput);
         this.addRow(new Label("右边（待查）："), doubleKillDirInput);
         this.addMergeRow(FxKit.getHBox(
-                new FxKit.FButton("按文件名+MD5对比", event -> dirCompare()),
+                new FxKit.FButton("对比", event -> dirCompare()),
                 new FxKit.FButton("删除右边与左边相同的文件", event -> deleteRightSameFiles()),
+                onlyExtMd5CheckBox,
                 new Label("过滤规则：" + String.join("，", backtool.service.FilterRules.DEFAULT.describeRules()))
         ), 2);
         this.addMergeRow(FxKit.getHBox(
@@ -73,27 +76,24 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
             outputPane.append("左右为同一文件夹，无法对比");
             return;
         }
-        TwoDirSameResult result = DirCompareUtil.compareTwoByNameAndContent(leftDir, rightDir);
-        //汇总行
+        boolean ignoreFileName = onlyExtMd5CheckBox.isSelected();
+        TwoDirSameResult result = DirCompareUtil.compareTwoByNameAndContent(leftDir, rightDir, ignoreFileName);
         outputPane.append("左边独有 " + result.leftUniq.size() + " 个，右边独有 " + result.rightUniq.size()
-                + " 个，相同 " + result.sames.size() + " 组");
+                + " 个，相同 " + result.sames.size() + " 组" + (ignoreFileName ? "（已忽略文件名，仅按后缀+MD5）" : ""));
         outputPane.append("左边文件总数：" + countFiles(leftDir) + "，右边文件总数：" + countFiles(rightDir));
-        //左边独有
         if (leftUniqCheckBox.isSelected()) {
             outputPane.append("");
             outputPane.append("━━━ 左边独有（右边缺失，疑似误删）：" + result.leftUniq.size() + " 个 ━━━");
             result.leftUniq.forEach(file -> outputPane.append("  " + file.getAbsolutePath()));
         }
-        //右边独有
         if (rightUniqCheckBox.isSelected()) {
             outputPane.append("");
             outputPane.append("━━━ 右边独有（左边没有）：" + result.rightUniq.size() + " 个 ━━━");
             result.rightUniq.forEach(file -> outputPane.append("  " + file.getAbsolutePath()));
         }
-        //相同
         if (sameCheckBox.isSelected()) {
             outputPane.append("");
-            outputPane.append("━━━ 相同（文件名+MD5一致）：" + result.sames.size() + " 组 ━━━");
+            outputPane.append("━━━ 相同：" + result.sames.size() + " 组 ━━━");
             int groupNo = 1;
             for (TwoDirSameResult.CrossIdentity same : result.sames) {
                 outputPane.append("【组 " + groupNo + "】");
@@ -105,7 +105,7 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
         outputPane.append("");
         outputPane.append("对比完成");
         if (result.leftUniq.isEmpty()) {
-            outputPane.append("✓ 左边所有文件在右边都有同名同 MD5 的对应项，无疑似误删");
+            outputPane.append("✓ 左边所有文件在右边都有对应项，无疑似误删");
         } else {
             outputPane.append("⚠ 右边缺失 " + result.leftUniq.size() + " 个左边文件，可能存在误删");
         }
@@ -132,26 +132,26 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
             outputPane.append("左右为同一文件夹，无法删除");
             return;
         }
-        TwoDirSameResult result = DirCompareUtil.compareTwoByNameAndContent(leftDir, rightDir);
-        //收集右边那些"有左边同名同 MD5 对应"的文件
+        boolean ignoreFileName = onlyExtMd5CheckBox.isSelected();
+        TwoDirSameResult result = DirCompareUtil.compareTwoByNameAndContent(leftDir, rightDir, ignoreFileName);
         List<File> toDelete = new ArrayList<>();
         for (TwoDirSameResult.CrossIdentity same : result.sames) {
             toDelete.addAll(same.rights());
         }
         if (toDelete.isEmpty()) {
             outputPane.clear();
-            outputPane.append("没有需要删除的文件（右边没有与左边文件名+MD5相同的项）");
+            outputPane.append("没有需要删除的文件（右边没有与左边匹配的项）");
             return;
         }
         var confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("确认删除");
-        confirm.setHeaderText("将删除右边文件夹中 " + toDelete.size() + " 个与左边文件名+MD5相同的文件");
+        confirm.setHeaderText("将删除右边文件夹中 " + toDelete.size() + " 个与左边相同的文件");
         confirm.setContentText("⚠ 强烈建议右边文件夹先整体备份，用于查看删除后剩余的文件。确认删除？");
         if (confirm.showAndWait().orElse(ButtonType.CANCEL) != ButtonType.OK) {
             return;
         }
         outputPane.clear();
-        outputPane.append("删除右边与左边文件名+MD5相同的文件：" + toDelete.size() + " 个");
+        outputPane.append("删除右边与左边相同的文件：" + toDelete.size() + " 个");
         int success = 0;
         List<String> failures = new ArrayList<>();
         for (File file : toDelete) {

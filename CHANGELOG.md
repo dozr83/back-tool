@@ -2,6 +2,10 @@
 
 倒序排列，最新在上。每条 = 日期 + 标题 + 影响说明（哪些文件/调用方受影响）。
 
+## 2026-10-19 FileUtil 删除拆为三个独立方法
+
+原 `deleteFileOrDir` 一个方法靠 `isDirectory()` 分支处理三种删除，调用点看不出意图。拆为 `deleteFile` / `deleteDir` / `deleteDirRecursive`，各自类型校验防误删，内置 Mac uchg 兜底。
+
 ## 2026-10-18 删除比对中间层：CompareQuery / DiffResult / DiffCategory
 
 `DirCompareUtil.compareTwoByPath` 直连 `DirDigestComparer.compareByPath`，消费 `PathDiffResult` 四个集合；`DirVersionProcessor.checkDirChangeByMap` 内联按值比对，删除 `toRevertMap` 工具方法。净删 3 个类，测试 12/12 通过。

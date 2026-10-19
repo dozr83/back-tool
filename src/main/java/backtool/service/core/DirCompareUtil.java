@@ -53,43 +53,46 @@ public class DirCompareUtil {
     }
 
     /**
-     * 【两个目录对比】，文件名（含扩展名）和 MD5 都相同才算匹配，路径可以不同。
-     * 用于精准排查"左边文件在右边是否有误删"。
+     * 两个目录按文件名/后缀+MD5 对比，路径可不同。
      *
-     * @param leftDirStr  左边文件夹（参考）
-     * @param rightDirStr 右边文件夹（待查）
-     * @return 相同 / 左边独有 / 右边独有
+     * @param ignoreFileName true=只按"扩展名|MD5"匹配；false=按"文件名|MD5"匹配
      */
-    public static TwoDirSameResult compareTwoByNameAndContent(String leftDirStr, String rightDirStr) {
+    public static TwoDirSameResult compareTwoByNameAndContent(String leftDirStr, String rightDirStr, boolean ignoreFileName) {
         TwoDirSameResult result = new TwoDirSameResult();
         LinkedHashMap<File, String> leftMd5Map_file = DigestCalculator.getDirDigestFileMap(leftDirStr, DigestType.MD5);
         LinkedHashMap<File, String> rightMd5Map_file = DigestCalculator.getDirDigestFileMap(rightDirStr, DigestType.MD5);
 
-        // Key = 文件名|MD5，按 (name+md5) 分组
         LinkedHashMap<String, List<File>> leftGroupFileMap_nameMd5 = new LinkedHashMap<>();
-        leftMd5Map_file.forEach((file, md5) -> leftGroupFileMap_nameMd5
-                .computeIfAbsent(file.getName() + "|" + md5, k -> new ArrayList<>()).add(file));
+        leftMd5Map_file.forEach((file, md5) -> {
+            String key = buildCompareKey(file, md5, ignoreFileName);
+            leftGroupFileMap_nameMd5.computeIfAbsent(key, k -> new ArrayList<>()).add(file);
+        });
         LinkedHashMap<String, List<File>> rightGroupFileMap_nameMd5 = new LinkedHashMap<>();
-        rightMd5Map_file.forEach((file, md5) -> rightGroupFileMap_nameMd5
-                .computeIfAbsent(file.getName() + "|" + md5, k -> new ArrayList<>()).add(file));
+        rightMd5Map_file.forEach((file, md5) -> {
+            String key = buildCompareKey(file, md5, ignoreFileName);
+            rightGroupFileMap_nameMd5.computeIfAbsent(key, k -> new ArrayList<>()).add(file);
+        });
 
-        //两边都有这个 key → 相同
         Set<String> leftKeys = new LinkedHashSet<>(leftGroupFileMap_nameMd5.keySet());
-        Set<String> rightKeys = new LinkedHashSet<>(rightGroupFileMap_nameMd5.keySet());
-        leftKeys.retainAll(rightKeys);
+        leftKeys.retainAll(rightGroupFileMap_nameMd5.keySet());
         leftKeys.forEach(key -> result.addSame(leftGroupFileMap_nameMd5.get(key), rightGroupFileMap_nameMd5.get(key)));
 
-        //左边独有
         Set<String> leftOnlyKeys = new LinkedHashSet<>(leftGroupFileMap_nameMd5.keySet());
         leftOnlyKeys.removeAll(leftKeys);
         leftOnlyKeys.forEach(key -> result.leftUniq.addAll(leftGroupFileMap_nameMd5.get(key)));
 
-        //右边独有
         Set<String> rightOnlyKeys = new LinkedHashSet<>(rightGroupFileMap_nameMd5.keySet());
         rightOnlyKeys.removeAll(leftKeys);
         rightOnlyKeys.forEach(key -> result.rightUniq.addAll(rightGroupFileMap_nameMd5.get(key)));
 
         return result;
+    }
+
+    private static String buildCompareKey(File file, String md5, boolean ignoreFileName) {
+        if (ignoreFileName) {
+            return FileUtil.getFileExtension(file.getName()) + "|" + md5;
+        }
+        return file.getName() + "|" + md5;
     }
 
 
