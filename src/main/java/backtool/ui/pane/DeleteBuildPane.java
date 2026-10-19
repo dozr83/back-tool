@@ -61,6 +61,7 @@ public class DeleteBuildPane extends VBox {
 
     private File scanRoot;
     private final List<Candidate> candidates = new ArrayList<>();
+    private final VBox detailPane = new VBox();
 
     private record Candidate(File file, long sizeBytes, CheckBox checkBox) {
     }
@@ -92,6 +93,7 @@ public class DeleteBuildPane extends VBox {
         resultPane.setPadding(new javafx.geometry.Insets(10, 5, 5, 10));
         this.getChildren().add(grid);
         this.getChildren().add(resultPane);
+        this.getChildren().add(detailPane);
         refreshSummary();
     }
 
@@ -270,16 +272,18 @@ public class DeleteBuildPane extends VBox {
                 renderCandidates();
                 setBusy(false);
                 refreshSummary();
-                statusLabel.setTooltip(failuresFinal.isEmpty() ? null
-                        : new Tooltip(String.join("\n", failuresFinal)));
                 StringBuilder message = new StringBuilder("删除完成：成功 " + removedFinal.size());
                 if (skippedFinal > 0) {
                     message.append("，已不存在跳过 ").append(skippedFinal);
                 }
                 if (!failuresFinal.isEmpty()) {
-                    message.append("，失败 ").append(failuresFinal.size()).append("（悬停查看明细）");
+                    message.append("，失败 ").append(failuresFinal.size()).append(" 个");
                 }
                 statusLabel.setText(message.toString());
+                detailPane.getChildren().clear();
+                for (String f : failuresFinal) {
+                    detailPane.getChildren().add(new Label("  ❌ " + f));
+                }
             });
         }, "delete-candidates");
         thread.setDaemon(true);

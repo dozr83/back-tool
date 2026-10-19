@@ -6,7 +6,6 @@ import backtool.util.FileUtil;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import backtool.util.StringUtil;
 
@@ -24,6 +23,7 @@ public class DeleteEmptyDirPane extends VBox {
     private static final String K_ROOT = "DeletePane.rootDir";
     private FxKit.DirInputFx rootDirInput = new FxKit.DirInputFx(FxKit.inputLength);
     private final Label statusLabel = new Label();
+    private final VBox detailPane = new VBox();
 
     public DeleteEmptyDirPane() {
         rootDirInput.setSelectDir(PaneStateStore.get(K_ROOT, ""));
@@ -36,6 +36,7 @@ public class DeleteEmptyDirPane extends VBox {
                 new Label("忽略系统元数据文件（.DS_Store / ._ 等），删除后自动向上清理随之变空的父目录")
         ), 2);
         grid.addMergeRow(statusLabel, 2);
+        grid.addMergeRow(detailPane, 2);
         grid.setAlignment(javafx.geometry.Pos.TOP_LEFT);
         this.getChildren().add(grid);
     }
@@ -83,13 +84,15 @@ public class DeleteEmptyDirPane extends VBox {
             int successFinal = success;
             List<String> failuresFinal = failures;
             javafx.application.Platform.runLater(() -> {
-                statusLabel.setTooltip(failuresFinal.isEmpty() ? null
-                        : new Tooltip(String.join("\n", failuresFinal)));
                 StringBuilder message = new StringBuilder("删除空文件夹完成：成功 " + successFinal + " 个");
                 if (!failuresFinal.isEmpty()) {
-                    message.append("，失败 ").append(failuresFinal.size()).append("（悬停查看明细）");
+                    message.append("，失败 ").append(failuresFinal.size()).append(" 个");
                 }
                 statusLabel.setText(message.toString());
+                detailPane.getChildren().clear();
+                for (String f : failuresFinal) {
+                    detailPane.getChildren().add(new Label("  ❌ " + f));
+                }
             });
         }, "delete-empty-dirs");
         thread.setDaemon(true);
