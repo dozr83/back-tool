@@ -10,6 +10,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,12 +50,16 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
         doubleKillDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_KILL, b));
         this.addRow(new Label("左边（参考）："), standardDirInput);
         this.addRow(new Label("右边（待查）："), doubleKillDirInput);
-        this.addMergeRow(FxKit.getHBox(
+        HBox topRow = FxKit.getHBox(
                 new FxKit.FButton("对比", event -> dirCompare()),
                 new FxKit.FButton("删除右边与左边相同的文件", event -> deleteRightSameFiles()),
-                onlyExtMd5CheckBox,
-                new Label("过滤规则：" + String.join("，", backtool.service.FilterRules.DEFAULT.describeRules()))
-        ), 2);
+                onlyExtMd5CheckBox
+        );
+        topRow.setSpacing(FxKit.spacing);
+        Label filterLabel = new Label("过滤规则：" + String.join("，", backtool.service.FilterRules.DEFAULT.describeRules()));
+        filterLabel.setWrapText(true);
+        filterLabel.setMaxWidth(Double.MAX_VALUE);
+        this.addMergeRow(FxKit.getVBox(topRow, filterLabel), 2);
         this.addMergeRow(FxKit.getHBox(
                 new Label("输出内容："),
                 leftUniqCheckBox,
