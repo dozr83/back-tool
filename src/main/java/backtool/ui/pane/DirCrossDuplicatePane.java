@@ -30,9 +30,6 @@ public class DirCrossDuplicatePane extends FxKit.FGridPane {
     private static final Logger logger = Logger.getLogger(DirCrossDuplicatePane.class.getName());
     private static final String K_STANDARD = "DirCrossDuplicatePane.standardDir";
     private static final String K_KILL = "DirCrossDuplicatePane.killDir";
-    private static final String K_LEFT_UNIQ = "DirCrossDuplicatePane.leftUniqCheckBox";
-    private static final String K_RIGHT_UNIQ = "DirCrossDuplicatePane.rightUniqCheckBox";
-    private static final String K_SAME = "DirCrossDuplicatePane.sameCheckBox";
 
     private final FxKit.LogTextArea outputPane;
     private FxKit.DirInputFx standardDirInput = new FxKit.DirInputFx(FxKit.inputLength);
@@ -47,14 +44,11 @@ public class DirCrossDuplicatePane extends FxKit.FGridPane {
         outputPane.append("对比文件名（含扩展名）+ MD5，路径可以不同");
         standardDirInput.setSelectDir(PaneStateStore.get(K_STANDARD, ""));
         doubleKillDirInput.setSelectDir(PaneStateStore.get(K_KILL, ""));
-        leftUniqCheckBox.setSelected(PaneStateStore.getBool(K_LEFT_UNIQ, true));
-        rightUniqCheckBox.setSelected(PaneStateStore.getBool(K_RIGHT_UNIQ, true));
-        sameCheckBox.setSelected(PaneStateStore.getBool(K_SAME, false));
+        leftUniqCheckBox.setSelected(true);
+        rightUniqCheckBox.setSelected(true);
+        sameCheckBox.setSelected(false);
         standardDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_STANDARD, b));
         doubleKillDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_KILL, b));
-        leftUniqCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_LEFT_UNIQ, b));
-        rightUniqCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_RIGHT_UNIQ, b));
-        sameCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_SAME, b));
         this.addRow(new Label("左边（参考）："), standardDirInput);
         this.addRow(new Label("右边（待查）："), doubleKillDirInput);
         this.addMergeRow(FxKit.getHBox(

@@ -180,6 +180,16 @@ public class FxKit {
         private void select() {
             DirectoryChooser directoryChooser = new DirectoryChooser();
             directoryChooser.setTitle("选择文件夹");
+            //默认定位到已选目录
+            String current = textField.getText();
+            if (StringUtil.isNotBlank(current)) {
+                File currentDir = new File(current);
+                if (currentDir.isDirectory()) {
+                    directoryChooser.setInitialDirectory(currentDir);
+                } else if (currentDir.getParentFile() != null && currentDir.getParentFile().isDirectory()) {
+                    directoryChooser.setInitialDirectory(currentDir.getParentFile());
+                }
+            }
             File directory = directoryChooser.showDialog(new Stage());
             if (directory != null) {
                 textField.setText(directory.getAbsolutePath());
@@ -223,6 +233,18 @@ public class FxKit {
         private void select() {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("请选择文件");
+            //默认定位到已选文件的父目录
+            String current = textField.getText();
+            if (StringUtil.isNotBlank(current)) {
+                File currentFile = new File(current);
+                File parent = currentFile.getParentFile();
+                if (parent != null && parent.isDirectory()) {
+                    fileChooser.setInitialDirectory(parent);
+                    if (currentFile.isFile()) {
+                        fileChooser.setInitialFileName(currentFile.getName());
+                    }
+                }
+            }
             File file = fileChooser.showOpenDialog(new Stage());
             if (file != null) {
                 textField.setText(file.getAbsolutePath());

@@ -77,7 +77,8 @@ public class BackToolApplication extends Application {
                     e -> setCenterWithScrollPane(new DirVersionCheckPane()), true));
             m2.getItems().add(new MyMenuItem("按路径对比两个文件夹",
                     e -> setCenterWithScrollPane(new DirComparePane()), true));
-
+            m2.getItems().add(new MyMenuItem("Md5-文件名对比两个文件夹",
+                    e -> setCenterWithScrollPane(new DirCrossDuplicatePane()), true));
             this.getMenus().add(m2);
 
 
@@ -89,8 +90,7 @@ public class BackToolApplication extends Application {
                     e -> setCenterWithScrollPane(new DeleteBuildPane()), true));
             m1.getItems().add(new MyMenuItem("删除文件夹中的重复文件",
                     e -> setCenterWithScrollPane(new DirDuplicatePane()), true));
-            m1.getItems().add(new MyMenuItem("删除两个文件夹的重复文件",
-                    e -> setCenterWithScrollPane(new DirCrossDuplicatePane()), true));
+
             this.getMenus().add(m1);
 
 

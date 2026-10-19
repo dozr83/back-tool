@@ -26,10 +26,6 @@ public class DirComparePane extends FxKit.FGridPane {
     private static final Logger logger = Logger.getLogger(DirComparePane.class.getName());
     private static final String K_LEFT = "DirComparePane.leftDir";
     private static final String K_RIGHT = "DirComparePane.rightDir";
-    private static final String K_LEFT_UNIQ = "DirComparePane.leftUniqCheckBox";
-    private static final String K_RIGHT_UNIQ = "DirComparePane.rightUniqCheckBox";
-    private static final String K_MODIFIED = "DirComparePane.modifiedCheckBox";
-    private static final String K_SAME = "DirComparePane.sameCheckBox";
     private final FxKit.LogTextArea outputPane;
     //选择对比文件夹
     private FxKit.DirInputFx leftDirInput = new FxKit.DirInputFx(FxKit.inputLength);
@@ -46,16 +42,12 @@ public class DirComparePane extends FxKit.FGridPane {
         //先读持久化值，再挂 listener，避免 set 时触发写回
         leftDirInput.setSelectDir(PaneStateStore.get(K_LEFT, ""));
         rightDirInput.setSelectDir(PaneStateStore.get(K_RIGHT, ""));
-        leftUniqCheckBox.setSelected(PaneStateStore.getBool(K_LEFT_UNIQ, true));
-        rightUniqCheckBox.setSelected(PaneStateStore.getBool(K_RIGHT_UNIQ, true));
-        modifiedCheckBox.setSelected(PaneStateStore.getBool(K_MODIFIED, true));
-        sameCheckBox.setSelected(PaneStateStore.getBool(K_SAME, false));
+        leftUniqCheckBox.setSelected(true);
+        rightUniqCheckBox.setSelected(true);
+        modifiedCheckBox.setSelected(true);
+        sameCheckBox.setSelected(false);
         leftDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_LEFT, b));
         rightDirInput.textField.textProperty().addListener((o, a, b) -> PaneStateStore.put(K_RIGHT, b));
-        leftUniqCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_LEFT_UNIQ, b));
-        rightUniqCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_RIGHT_UNIQ, b));
-        modifiedCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_MODIFIED, b));
-        sameCheckBox.selectedProperty().addListener((o, a, b) -> PaneStateStore.putBool(K_SAME, b));
         this.addRow(new Label("左边："), leftDirInput);
         this.addRow(new Label("右边："), rightDirInput);
         this.addMergeRow(FxKit.getHBox(
