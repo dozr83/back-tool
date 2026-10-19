@@ -37,7 +37,7 @@ public class TestDirMd5Calculate {
                 {Java/java语法.txt=25, Java/Spring框架.txt=33, readme.md=24, 李白/静夜思.txt=15}""";
 
         String md5FileStr =
-                DigestCalculator.getDirDigestRelativePathMap(testTempDir.getAbsolutePath(), DigestCalculator.DigestType.LEN).toString();
+                DigestCalculator.getDirDigestRelativePathMap(testTempDir.getAbsolutePath(), DigestType.LEN).toString();
         Assert.assertEquals(md5, md5FileStr);
     }
 
@@ -50,7 +50,7 @@ public class TestDirMd5Calculate {
                 {Java/java语法.txt=f29a628831fe901bbdd3132bbdc2313e, Java/Spring框架.txt=5fb14d685c15f75c92d243da709cc28b, readme.md=a723b646fe33ab2f0c8e8ed4c4583f0b, 李白/静夜思.txt=7bae0c4e8ec3f7dededc3450137efa04}""";
 
         String md5FileStr =
-                DigestCalculator.getDirDigestRelativePathMap(testTempDir.getAbsolutePath(), DigestCalculator.DigestType.MD5).toString();
+                DigestCalculator.getDirDigestRelativePathMap(testTempDir.getAbsolutePath(), DigestType.MD5).toString();
         Assert.assertEquals(md5, md5FileStr);
     }
 }

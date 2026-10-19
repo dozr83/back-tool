@@ -13,26 +13,6 @@ import java.util.List;
  * 摘要计算门面：DigestType 类型目录 + 统一入口（遍历引擎见 DigestWalker，比对见 DirDigestComparer，清单 IO 见 DigestManifest）
  */
 public class DigestCalculator {
-    public enum DigestType {
-        MD5 {
-            @Override
-            public String calculate(File file) {
-                return Md5Util.getMD5(file);
-            }
-        }, LEN {
-            @Override
-            public String calculate(File file) {
-                return String.valueOf(file.length());
-            }
-        }, LEN_MD5 {
-            @Override
-            public String calculate(File file) {
-                return Md5Util.getMD5(file) + "," + file.length();
-            }
-        };
-
-        public abstract String calculate(File file);
-    }
 
     public static LinkedHashMap<String, List<File>> groupFilesByMd5(List<File> files) {
         LinkedHashMap<String, List<File>> md5RevertMap_md5 = new LinkedHashMap<>();

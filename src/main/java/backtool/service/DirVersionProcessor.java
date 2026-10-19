@@ -1,20 +1,16 @@
 package backtool.service;
 
-import backtool.service.DigestCalculator;
 import backtool.util.LinkedHashMapUtil;
 import backtool.util.Md5Util;
-import java.util.logging.Level;
+
 import java.util.logging.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Predicate;
 
 /**
  * Created by dozr83 on 2021/9/6
@@ -57,7 +53,7 @@ public class DirVersionProcessor {
         });
 
         // 2. 当前版本
-        Map<String, String> currentMd5Map = DigestCalculator.getDirDigestRelativePathMap(checkDirStr, DigestCalculator.DigestType.MD5);
+        Map<String, String> currentMd5Map = DigestCalculator.getDirDigestRelativePathMap(checkDirStr, DigestType.MD5);
         LinkedHashMap<String, List<String>> currentRevertMap = LinkedHashMapUtil.convert2ValueMap(currentMd5Map);
 
         //按值比对：历史版本md5在当前版本中仍存在为OK，不存在为已删除
