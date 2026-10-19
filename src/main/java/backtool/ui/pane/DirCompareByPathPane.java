@@ -22,8 +22,8 @@ import java.util.logging.Logger;
 /**
  * Created by dozr83 on 2020/3/7.
  */
-public class DirComparePane extends FxKit.FGridPane {
-    private static final Logger logger = Logger.getLogger(DirComparePane.class.getName());
+public class DirCompareByPathPane extends FxKit.FGridPane {
+    private static final Logger logger = Logger.getLogger(DirCompareByPathPane.class.getName());
     private static final String K_LEFT = "DirComparePane.leftDir";
     private static final String K_RIGHT = "DirComparePane.rightDir";
     private final FxKit.LogTextArea outputPane;
@@ -35,7 +35,7 @@ public class DirComparePane extends FxKit.FGridPane {
     private final CheckBox modifiedCheckBox = new CheckBox("修改");
     private final CheckBox sameCheckBox = new CheckBox("相同");
 
-    public DirComparePane() {
+    public DirCompareByPathPane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
         outputPane.append("左边独有 0 个，右边独有 0 个，修改 0 个，相同 0 个");

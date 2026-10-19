@@ -4,9 +4,9 @@ import backtool.AppConfig;
 import backtool.ui.pane.AutoTranslatorPane;
 import backtool.ui.pane.DeleteBuildPane;
 import backtool.ui.pane.DeleteEmptyDirPane;
-import backtool.ui.pane.DirComparePane;
+import backtool.ui.pane.DirCompareByPathPane;
 import backtool.ui.pane.DirDuplicatePane;
-import backtool.ui.pane.DirCrossDuplicatePane;
+import backtool.ui.pane.DirCompareByMd5namePane;
 import backtool.ui.pane.DirVersionCheckPane;
 import backtool.ui.pane.DirVersionGenPane;
 import backtool.ui.pane.EnglishListeningPane;
@@ -75,9 +75,9 @@ public class BackToolApplication extends Application {
             m2.getItems().add(new MyMenuItem("检查资产清单",
                     e -> setCenterWithScrollPane(new DirVersionCheckPane()), true));
             m2.getItems().add(new MyMenuItem("按路径对比两个文件夹",
-                    e -> setCenterWithScrollPane(new DirComparePane()), true));
+                    e -> setCenterWithScrollPane(new DirCompareByPathPane()), true));
             m2.getItems().add(new MyMenuItem("Md5-文件名对比两个文件夹",
-                    e -> setCenterWithScrollPane(new DirCrossDuplicatePane()), true));
+                    e -> setCenterWithScrollPane(new DirCompareByMd5namePane()), true));
             this.getMenus().add(m2);
 
 

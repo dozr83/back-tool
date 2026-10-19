@@ -13,21 +13,18 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.apache.commons.io.FileUtils;
 
 
 /**
  * 按【文件名（含扩展名）+ MD5】匹配两个文件夹，路径可以不同。
  * 用于精准排查"左边文件在右边是否有误删"。
  */
-public class DirCrossDuplicatePane extends FxKit.FGridPane {
-    private static final Logger logger = Logger.getLogger(DirCrossDuplicatePane.class.getName());
+public class DirCompareByMd5namePane extends FxKit.FGridPane {
+    private static final Logger logger = Logger.getLogger(DirCompareByMd5namePane.class.getName());
     private static final String K_STANDARD = "DirCrossDuplicatePane.standardDir";
     private static final String K_KILL = "DirCrossDuplicatePane.killDir";
 
@@ -38,7 +35,7 @@ public class DirCrossDuplicatePane extends FxKit.FGridPane {
     private final CheckBox rightUniqCheckBox = new CheckBox("右边独有（左边没有）");
     private final CheckBox sameCheckBox = new CheckBox("相同（文件名+MD5一致）");
 
-    public DirCrossDuplicatePane() {
+    public DirCompareByMd5namePane() {
         outputPane = new FxKit.LogTextArea("执行结果");
         outputPane.append("执行结果");
         outputPane.append("对比文件名（含扩展名）+ MD5，路径可以不同");
@@ -184,9 +181,5 @@ public class DirCrossDuplicatePane extends FxKit.FGridPane {
             outputPane.append("失败明细：");
             failures.forEach(outputPane::append);
         }
-        //删除后再对比一次，让用户看到剩余
-        outputPane.append("");
-        outputPane.append("━━━ 删除后重新对比 ━━━");
-        dirCompare();
     }
 }
