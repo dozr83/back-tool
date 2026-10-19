@@ -54,6 +54,7 @@ public class DeleteEmptyDirPane extends VBox {
             return;
         }
         statusLabel.setText("正在删除空文件夹...");
+        detailPane.getChildren().clear();
         Thread thread = new Thread(() -> {
             List<File> emptyDirs = new ArrayList<>();
             FileUtil.walkAllDirIgnoreHiddenDir(root, file -> {

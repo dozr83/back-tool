@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import backtool.util.OsUtil;
 
 /**
  * 统一封装文件访问
@@ -165,11 +166,11 @@ public class FileUtil {
     public static boolean deleteEmptyDirIgnoreMetadata(File file) {
         for (File f : file.listFiles()) {
             if (f.isFile() && isSystemMetadataFile(f)) {
-                f.delete();
+                deleteFile(f);
             }
         }
         if (isEmptyDirIgnoreMetadata(file)) {
-            return file.delete();
+            return deleteDir(file);
         } else {
             return false;
         }
@@ -437,5 +438,63 @@ public class FileUtil {
             return false;
         }
 
+    }
+
+    /**
+     * 删除单个文件，Mac uchg 锁定时先清标志再重试。只处理文件，目录调用会返回 false
+     */
+    public static boolean deleteFile(File file) {
+        if (file == null || !file.exists() || file.isDirectory()) {
+            return false;
+        }
+        boolean deleted = file.delete();
+        if (!deleted && OsUtil.isMac()) {
+            try {
+                new ProcessBuilder("chflags", "nouchg", file.getAbsolutePath()).start().waitFor();
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "清除锁定标志失败: " + file.getAbsolutePath(), e);
+            }
+            deleted = file.delete();
+        }
+        return deleted;
+    }
+
+    /**
+     * 删除一个空目录，Mac uchg 锁定时先清标志再重试。非空目录调用会返回 false
+     */
+    public static boolean deleteDir(File dir) {
+        if (dir == null || !dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+        boolean deleted = dir.delete();
+        if (!deleted && OsUtil.isMac()) {
+            try {
+                new ProcessBuilder("chflags", "nouchg", dir.getAbsolutePath()).start().waitFor();
+            } catch (Exception e) {
+                logger.log(Level.WARNING, "清除锁定标志失败: " + dir.getAbsolutePath(), e);
+            }
+            deleted = dir.delete();
+        }
+        return deleted;
+    }
+
+    /**
+     * 递归删除整个目录树（含子文件和子目录）。Mac uchg 锁定时子文件/子目录分别清标志重试
+     */
+    public static boolean deleteDirRecursive(File dir) {
+        if (dir == null || !dir.exists() || !dir.isDirectory()) {
+            return false;
+        }
+        File[] children = dir.listFiles();
+        if (children != null) {
+            for (File child : children) {
+                if (child.isDirectory()) {
+                    deleteDirRecursive(child);
+                } else {
+                    deleteFile(child);
+                }
+            }
+        }
+        return deleteDir(dir);
     }
 }

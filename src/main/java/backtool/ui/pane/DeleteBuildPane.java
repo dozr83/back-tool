@@ -12,7 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.VBox;
 import org.apache.commons.io.FileUtils;
-import backtool.util.OsUtil;
+import backtool.util.FileUtil;
 import backtool.util.StringUtil;
 
 import java.io.File;
@@ -243,21 +243,14 @@ public class DeleteBuildPane extends VBox {
                     continue;
                 }
                 try {
+                    boolean deleted;
                     if (file.isDirectory()) {
-                        FileUtils.deleteDirectory(file);
+                        deleted = FileUtil.deleteDirRecursive(file);
                     } else {
-                        boolean deleted = file.delete();
-                        if (!deleted && OsUtil.isMac()) {
-                            try {
-                                new ProcessBuilder("chflags", "nouchg", file.getAbsolutePath()).start().waitFor();
-                            } catch (Exception e) {
-                                logger.log(Level.WARNING, "清除锁定标志失败: " + file.getAbsolutePath(), e);
-                            }
-                            deleted = file.delete();
-                        }
-                        if (!deleted) {
-                            throw new IOException("删除失败");
-                        }
+                        deleted = FileUtil.deleteFile(file);
+                    }
+                    if (!deleted) {
+                        throw new IOException("删除失败");
                     }
                     removed.add(candidate);
                 } catch (IOException e) {

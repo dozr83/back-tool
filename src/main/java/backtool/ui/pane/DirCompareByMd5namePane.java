@@ -5,7 +5,6 @@ import backtool.service.core.TwoDirSameResult;
 import backtool.service.core.DirCompareUtil;
 import backtool.ui.component.FxKit;
 import backtool.util.FileUtil;
-import backtool.util.OsUtil;
 import backtool.util.StringUtil;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -156,19 +155,7 @@ public class DirCompareByMd5namePane extends FxKit.FGridPane {
         int success = 0;
         List<String> failures = new ArrayList<>();
         for (File file : toDelete) {
-            boolean deleted = file.delete();
-            if (!deleted) {
-                //mac 锁定(uchg)的文件会被直接拒删，仅 Mac 下先清不可变标志再重试一次
-                if (OsUtil.isMac()) {
-                    try {
-                        new ProcessBuilder("chflags", "nouchg", file.getAbsolutePath()).start().waitFor();
-                    } catch (Exception e) {
-                        logger.log(Level.WARNING, "清除锁定标志失败: " + file.getAbsolutePath(), e);
-                    }
-                    deleted = file.delete();
-                }
-            }
-            if (deleted) {
+            if (FileUtil.deleteFile(file)) {
                 success++;
                 outputPane.append("  ✓ " + file.getAbsolutePath());
             } else {
